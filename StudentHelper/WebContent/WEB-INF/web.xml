@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+	<display-name>StudentHelper</display-name>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+
+	<filter>
+		<filter-name>AuthFilter</filter-name>
+		<filter-class>edu.iba.lilya.AuthFilter</filter-class>
+	</filter>
+    <filter>
+        <filter-name>RolesFilter</filter-name>
+        <filter-class>edu.iba.lilya.RolesFilter</filter-class>
+    </filter>
+	<filter-mapping>
+		<filter-name>AuthFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+    <filter-mapping>
+        <filter-name>RolesFilter</filter-name>
+        <url-pattern>/Actions</url-pattern>
+        <url-pattern>/UserGet</url-pattern>
+        <url-pattern>/MarkGet</url-pattern>
+        <url-pattern>/GroupGet</url-pattern>
+        <url-pattern>/ProfessorGet</url-pattern>
+        <url-pattern>/StudentGet</url-pattern>
+        <url-pattern>/StudyGet</url-pattern>
+        <url-pattern>/UserEdit</url-pattern>
+        <url-pattern>/MarkEdit</url-pattern>
+        <url-pattern>/GroupEdit</url-pattern>
+        <url-pattern>/ProfessorEdit</url-pattern>
+        <url-pattern>/StudentEdit</url-pattern>
+        <url-pattern>/StudyEdit</url-pattern>
+        <url-pattern>/UserDelete</url-pattern>
+        <url-pattern>/MarkDelete</url-pattern>
+        <url-pattern>/GroupDelete</url-pattern>
+        <url-pattern>/ProfessorDelete</url-pattern>
+        <url-pattern>/StudentDelete</url-pattern>
+        <url-pattern>/StudyDelete</url-pattern>
+    </filter-mapping>
+</web-app>

@@ -1,0 +1,158 @@
+drop database academic_reference;
+create database academic_reference;
+use academic_reference;
+
+create table GROUPS(
+  GROUP_NUMBER VARCHAR(20) NOT NULL,
+  AVG_MARK FLOAT(10),
+  PRIMARY KEY (GROUP_NUMBER)
+);
+
+INSERT INTO GROUPS values("2A",7.97);
+INSERT INTO GROUPS values("3",6.8);
+INSERT INTO GROUPS values("4B",8.7);
+
+create table STUDENTS(
+  ID INT(10) NOT NULL,
+  FIRST_NAME VARCHAR(20),
+  SECOND_NAME VARCHAR(20),
+  AVG_MARK FLOAT(10),
+  GROUP_NUMBER VARCHAR(20),
+  PRIMARY KEY (ID),
+  FOREIGN KEY (GROUP_NUMBER) REFERENCES GROUPS(GROUP_NUMBER)
+);
+
+INSERT INTO STUDENTS values(1,"Artem","Smirnov",8.526,null);
+INSERT INTO STUDENTS values(2,"Svetlana","Prohorchik",10.0,"2A");
+INSERT INTO STUDENTS values(3,"Zahar","Berezka",4.5,"2A");
+INSERT INTO STUDENTS values(4,"Anna","Berezka",6.9,"2A");
+INSERT INTO STUDENTS values(5,"Alina","Zimina",7.2,"3");
+INSERT INTO STUDENTS values(6,"Alexandr","Krasota",8.8,"3");
+INSERT INTO STUDENTS values(7,"Zahar","Dubovskii",5.2,"4B");
+INSERT INTO STUDENTS values(8,"Vyacheslav","Starovoitov",7.5,"4B");
+
+SELECT *FROM GROUPS JOIN STUDENTS USING(GROUP_NUMBER);
+
+create table USERS(
+  USER VARCHAR(20),
+  PASS VARCHAR(20),
+  ROLE VARCHAR(20)
+);
+
+INSERT INTO USERS values("lapusha","1111","professor");
+INSERT INTO USERS values("valvachev","1112","professor");
+INSERT INTO USERS values("user01","2111","student");
+INSERT INTO USERS values("user02","2211","student");
+INSERT INTO USERS values("admin","pass","admin");
+
+create table PROFESSORS(
+  ID INT(10) NOT NULL,
+  FIRST_NAME VARCHAR(20),
+  SECOND_NAME VARCHAR(20),
+  FATHER_NAME VARCHAR(20),
+  BIRTHDATE DATE,
+  AVG_MARK FLOAT(10),
+  PRIMARY KEY (ID)
+);
+
+INSERT INTO PROFESSORS values(1,"Kastrica","Oleg","Adamovich",'1963-03-21',8.0);
+INSERT INTO PROFESSORS values(2,"Pareiko","Olga","Vasilievna",'1955-01-01',9.0);
+INSERT INTO PROFESSORS values(3,"Telepun","Inna","Alexandrovna",'1978-04-24',4.8);
+
+create table STUDIES(
+  ID INT(10) NOT NULL,
+  NAME VARCHAR(20),
+  HOURS INT(10),
+  PROFESSOR_ID INT(10),
+  AVG_MARK FLOAT(10),
+  PRIMARY KEY (ID),
+  FOREIGN KEY(PROFESSOR_ID) REFERENCES PROFESSORS(ID)
+);
+
+CREATE UNIQUE INDEX STUDIES_INDEX ON STUDIES(ID);
+
+INSERT INTO STUDIES values(1,"Mathematics",220,1,NULL);
+INSERT INTO STUDIES values(2,"Algorithms",180,2,NULL);
+INSERT INTO STUDIES values(3,"Statistics",100,3,NULL);
+
+create table MARKS(
+  ID INT(10) NOT NULL,
+  STUDY_ID INT(10),
+  STUDENT_ID INT(10),
+  MDATE DATE,
+  PROFESSOR_ID INT(10),
+  MARK FLOAT(10),
+  COMMENTS VARCHAR(10),
+  FOREIGN KEY(STUDY_ID) REFERENCES STUDIES(ID),
+  FOREIGN KEY(STUDENT_ID) REFERENCES STUDENTS(ID),
+  FOREIGN KEY(PROFESSOR_ID) REFERENCES PROFESSORS(ID)
+);
+
+INSERT INTO MARKS values(1,1,1,'2016-03-21',1,8.0,"");
+INSERT INTO MARKS values(2,2,3,'2016-03-22',2,6.0,"");
+INSERT INTO MARKS values(3,3,2,'2016-03-23',3,2.0,"");
+INSERT INTO MARKS values(4,1,2,'2016-03-23',1,5.0,"");
+
+DROP PROCEDURE IF EXISTS PROF_AVRG_MARKS;
+DROP PROCEDURE IF EXISTS STUDY_AVRG_MARKS;
+DROP PROCEDURE IF EXISTS STUDENT_AVRG_MARKS;
+DROP PROCEDURE IF EXISTS GROUP_AVRG_MARKS;
+DELIMITER ;;
+
+CREATE PROCEDURE PROF_AVRG_MARKS()
+  BEGIN
+
+    UPDATE PROFESSORS a
+      INNER JOIN (
+                   SELECT PROFESSOR_ID, AVG(MARK) avrg_mrk
+                   FROM MARKS
+                   GROUP BY PROFESSOR_ID
+                 ) b ON a.ID = b.PROFESSOR_ID
+    SET a.AVG_MARK = b.avrg_mrk;
+
+  End;
+;;
+
+CREATE PROCEDURE STUDY_AVRG_MARKS()
+  BEGIN
+
+    UPDATE STUDIES a
+      INNER JOIN (
+                   SELECT STUDY_ID, AVG(MARK) avrg_mrk
+                   FROM MARKS
+                   GROUP BY STUDY_ID
+                 ) b ON a.ID = b.STUDY_ID
+    SET a.AVG_MARK = b.avrg_mrk;
+
+  End;
+;;
+
+CREATE PROCEDURE STUDENT_AVRG_MARKS()
+  BEGIN
+
+    UPDATE STUDENTS a
+      INNER JOIN (
+                   SELECT STUDENT_ID, AVG(MARK) avrg_mrk
+                   FROM MARKS
+                   GROUP BY STUDENT_ID
+                 ) b ON a.ID = b.STUDENT_ID
+    SET a.AVG_MARK = b.avrg_mrk;
+
+  End;
+;;
+
+CREATE PROCEDURE GROUP_AVRG_MARKS()
+  BEGIN
+
+    UPDATE GROUPS a
+      INNER JOIN (
+                   SELECT GROUP_NUMBER, AVG(AVG_MARK) avrg_mrk
+                   FROM STUDENTS
+                   GROUP BY GROUP_NUMBER
+                 ) b ON a.GROUP_NUMBER = b.GROUP_NUMBER
+    SET a.AVG_MARK = b.avrg_mrk;
+
+  End;
+;;
+
+DELIMITER ;
